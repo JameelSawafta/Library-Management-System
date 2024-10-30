@@ -1,0 +1,28 @@
+select
+    case
+        when age >= 0 and age <= 10 then '0-10'
+        when age >= 11 and age <= 20 then '11-20'
+        when age >= 21 and age <= 30 then '21-30'
+        when age >= 31 and age <= 40 then '31-40'
+        when age >= 41 and age <= 50 then '41-50'
+        when age >= 51 and age <= 60 then '51-60'
+        else '61+'
+    end as age_group,
+    b.genre,
+    count(*) as count
+from
+    borrowers br
+join
+    loans l on br.borrower_id = l.borrower_id
+join
+    books b on l.book_id = b.book_id
+join
+    (select date_of_birth, extract(year from age(current_date, date_of_birth)) as age from borrowers) as age_data on br.date_of_birth = age_data.date_of_birth
+group by
+    age_group, b.genre
+having
+    count(*) > 0
+order by
+    age_group, count desc;
+
+
